@@ -1,0 +1,17 @@
+services:
+  opensips:
+    image: w01w13/opensips:latest
+    container_name: opensips
+    ports:
+      - 5061:5061/tcp
+      - 10000-10025:10000-10025/udp
+    volumes:
+      - ./etc/letsencrypt/:/etc/letsencrypt/:rw
+      - ./db_data:/db_data:rw
+    environment:
+      - OPENSIPS_DOMAIN
+      - DUCKDNS_TOKEN
+      - LETSENCYPT_EMAIL
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
