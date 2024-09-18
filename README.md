@@ -31,7 +31,9 @@ The folder structure of the project:
 
 Some explanation of the files and folders:
 - [db_data/opensips ](db_data/opensips) 
-    - SQLite database created with opensips-cli -x database create and dr_gateways prepopulated with SBC_WAN tls:0.0.0.0:5061 
+    - SQLite database created with opensips-cli -x database create and dr_gateways prepopulated with SBC_WAN tls:0.0.0.0:5061. 
+    
+        **NOTE:** During the startup the container will get the correct private IP address assigned to the container and update the socket values for gwid 'ms1', 'ms2' and 'ms3'
 - [docker-compose.yaml](docker-compose.yaml) 
     - Tries to read configuration variables from environment variables, so use .env or other ways to get them in
 - [Dockerfile](Dockerfile) 
@@ -82,6 +84,10 @@ You can also set following optional parameters for RTP traffic:
 ```
 RTP_PORT_MIN=<minimum port range for RTP traffic>
 RTP_PORT_MAX=<maximum port range for RTP traffic>
+```
+For debugging purposes you can set the following parameter to enable debug_mode and rtpproxy_debug
+```
+OPENSIPS_DEBUG=yes
 ```
 **NOTE** If you edit these, also edit the [docker-compose.yaml](docker-compose.yaml) to expose the ports as well
 

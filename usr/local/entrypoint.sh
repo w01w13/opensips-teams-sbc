@@ -33,6 +33,7 @@ check_dns(){
 check_ip_address() {
     ATTEMPTS=10
     ACTUAL_IP=""
+    PRIVATE_IP=$(hostname -i)
     while [ $ATTEMPTS -gt 0 ]; do
         ACTUAL_IP=$(dig +short ${OPENSIPS_DOMAIN})
         if [[ $ACTUAL_IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -58,6 +59,8 @@ define(\`OPENSIPS_IP', \`$ACTUAL_IP')
 define(\`OPENSIPS_DOMAIN', \`$OPENSIPS_DOMAIN')
 define(\`RTP_PORT_MIN', \`$RTP_PORT_MIN')
 define(\`RTP_PORT_MAX', \`$RTP_PORT_MAX')
+define(\`PRIVATE_IP', \`$PRIVATE_IP')
+define(\`OPENSIPS_DEBUG', \`$OPENSIPS_DEBUG')
 divert(0)dnl
 
 EOF
@@ -83,8 +86,18 @@ check_and_create_certs() {
     fi
 }
 start_rtpproxy() {
-    rtpproxy_debug -F -l 127.0.0.1 -s udp:127.0.0.1:7722 -A ${ACTUAL_IP} -m ${RTP_PORT_MIN} -M ${RTP_PORT_MAX} -d DBUG:LOG_LOCAL0
+    if [ "${OPENSIPS_DEBUG}" == "yes" ]; then
+        command="rtpproxy_debug"
+    else
+        command="rtpproxy"
+    fi
+    ${command} -F -l ${PRIVATE_IP} -s udp:${PRIVATE_IP}:7722 -A ${ACTUAL_IP} -m ${RTP_PORT_MIN} -M ${RTP_PORT_MAX} -d DBUG:LOG_LOCAL0
     sleep 10 # Ensure it starts up
+}
+
+update_sql_lite(){
+    echo "Updating IP Address to SQLite"
+    sqlite3 /db_data/opensips "UPDATE dr_gateways SET socket='tls:${PRIVATE_IP}:5061' WHERE gwid in ('ms1', 'ms2', 'ms3');"
 }
 start_opensips() {
     /usr/sbin/opensips -f /etc/opensips/config/opensips.cfg -m 512 -M 64
@@ -97,9 +110,11 @@ check_dns
 check_ip_address
 check_and_create_certs
 check_and_set_default RTP_PORT_MIN 10000
-check_and_set_default RTP_PORT_MAX 10255
+check_and_set_default RTP_PORT_MAX 10025
+check_and_set_default OPENSIPS_DEBUG no
 start_rtpproxy
 create_config
+update_sql_lite
 start_opensips
 startup_complete
 

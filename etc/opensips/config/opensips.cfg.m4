@@ -20,7 +20,7 @@
 log_level=3      # logging level (cmd line: -dddddddddd)
 stderror_enabled=no
 syslog_enabled=yes
-debug_mode=yes
+debug_mode=OPENSIPS_DEBUG
 advertised_address="OPENSIPS_DOMAIN"
 log_level=3
 xlog_level=3
@@ -32,7 +32,8 @@ dns=yes           # (cmd. line: -r)
 rev_dns=yes      # (cmd. line: -R)
 udp_workers=4
 
-socket= tls:0.0.0.0:5061
+socket= tls:PRIVATE_IP:5061
+socket= udp:PRIVATE_IP:5060
 
 # ------------------ module loading ----------------------------------
 
@@ -57,7 +58,7 @@ loadmodule "auth.so"
 loadmodule "db_sqlite.so"
 ###RTPProxy
 loadmodule "rtpproxy.so"
-modparam("rtpproxy", "rtpproxy_sock", "udp:127.0.0.1:7722")
+modparam("rtpproxy", "rtpproxy_sock", "udp:PRIVATE_IP:7722")
 modparam("rtpproxy", "generated_sdp_port_min", RTP_PORT_MIN)
 modparam("rtpproxy", "generated_sdp_port_max", RTP_PORT_MAX)
 modparam("rtpproxy", "generated_sdp_media_ip", "OPENSIPS_IP")
@@ -263,7 +264,7 @@ route[1]
 
 	# if client or server know to be behind a NAT, enable relay
 	if (isbflagset("NAT")) {
-		rtpproxy_offer();
+		rtpproxy_offer("cor", "OPENSIPS_IP");
 	};
 
 	# NAT processing of replies; apply to all transactions (for example,
@@ -283,7 +284,7 @@ onreply_route[reply_handler] {
 	# NATed transaction ?
 	if (isbflagset("NAT") && $rs =~ "(183)|2[0-9][0-9]") {
 		fix_nated_contact();
-		rtpproxy_answer();
+		rtpproxy_answer("cor", "OPENSIPS_IP");
 	# otherwise, is it a transaction behind a NAT and we did not
 	# know at time of request processing ? (RFC1918 contacts)
 	} else if (nat_uac_test("private-contact")) {

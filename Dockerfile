@@ -12,7 +12,7 @@ ARG OPENSIPS_VERSION_REVISION=1
 ARG OPENSIPS_BUILD=releases
 
 #install basic components
-RUN apt-get -y update -qq && apt-get -y install gnupg2 dnsutils ca-certificates certbot m4 curl git gcc build-essential libsqlite3-dev 
+RUN apt-get -y update -qq && apt-get -y install gnupg2 dnsutils ca-certificates certbot m4 curl git gcc build-essential libsqlite3-dev sqlite3
 
 #add keyserver, repository
 RUN apt-key adv --fetch-keys https://apt.opensips.org/pubkey.gpg
