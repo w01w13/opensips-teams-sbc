@@ -69,7 +69,7 @@ touch .env
 ```
 Edit the file
 ```
-nano touch .env
+nano .env
 ```
 and add following mandatory parameters:
 ```
