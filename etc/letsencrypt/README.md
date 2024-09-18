@@ -1,0 +1,1 @@
+If you plan to fork and commit anything into github, make sure that you don't remove the .gitignore as this folder will contain the Let's Encrypt data along with the private key

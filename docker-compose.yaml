@@ -4,14 +4,18 @@ services:
     container_name: opensips
     ports:
       - 5061:5061/tcp
+      - 5060:5060/tcp
       - 10000-10025:10000-10025/udp
     volumes:
       - ./etc/letsencrypt/:/etc/letsencrypt/:rw
       - ./db_data:/db_data:rw
     environment:
       - OPENSIPS_DOMAIN
+      - OPENSIPS_DEBUG
       - DUCKDNS_TOKEN
       - LETSENCYPT_EMAIL
+      - RTP_PORT_MAX
+      - RTP_PORT_MIN
     dns:
       - 8.8.8.8
       - 8.8.4.4
