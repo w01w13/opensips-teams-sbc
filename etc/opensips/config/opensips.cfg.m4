@@ -53,7 +53,8 @@ loadmodule "mi_fifo.so"
 loadmodule "options.so"
 loadmodule "auth_db.so"
 loadmodule "auth.so"
-
+### registrar
+modparam("registrar", "max_contacts", 1)
 #### SQLite 
 loadmodule "db_sqlite.so"
 ###RTPProxy
@@ -119,6 +120,9 @@ modparam("auth_db", "domain_column", "domain")
 modparam("usrloc","nat_bflag", "NAT")
 modparam("nathelper","sipping_bflag", "SIP_PING")
 modparam("nathelper","natping_interval",60)
+modparam("nathelper", "ping_threshold", 10)
+modparam("nathelper","natping_tcp",1)
+modparam("nathelper", "remove_on_timeout_bflag", "SIPPING_RTO")
 modparam("nathelper","ping_nated_only",1)
 modparam("nathelper","sipping_method","OPTIONS")
 modparam("nathelper","sipping_from","sip:pinger@OPENSIPS_DOMAIN")
@@ -184,6 +188,7 @@ route{
 			# "symmetric signalling".
 
 			# Rewrite contact with source IP of signalling
+
 			fix_nated_contact();
 			if ( is_method("INVITE") ) {
 				fix_nated_sdp("add-dir-active"); # Add direction=active to SDP
@@ -232,7 +237,7 @@ route{
 			#	return;
 			#};
 			fix_nated_register();
-			save("location");
+			save("location", "force-registration");
 			exit;
 		};
 
